@@ -1,0 +1,13 @@
+.borrows-view-component h2 {
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+  }
+  
+  .borrows-list-component {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }

@@ -1,0 +1,149 @@
+/* // filepath: c:\Users\anees\Downloads\Compressed\library-management-system_2\frontend\src\components\dashboardComponents\PaymentModal.css */
+.modal-overlay-component {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-component {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header-component {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header-component h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+}
+
+.modal-close-button {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #7f8c8d;
+  line-height: 1;
+}
+
+.modal-close-button:hover {
+  color: #e74c3c;
+}
+
+.modal-content-component {
+  padding: 20px;
+  flex-grow: 1;
+}
+
+.modal-content-component p {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+
+.payment-form-component {
+  margin-top: 20px;
+}
+
+.form-group-component {
+  margin-bottom: 15px;
+}
+
+.form-group-component label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.form-group-component input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.form-row-component {
+  display: flex;
+  gap: 15px;
+}
+
+.form-row-component .form-group-component {
+  flex: 1;
+}
+
+.form-actions-component {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.cancel-button-component,
+.pay-now-button-component {
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cancel-button-component {
+  background-color: #95a5a6;
+  color: white;
+}
+.cancel-button-component:hover {
+  background-color: #7f8c8d;
+}
+
+.pay-now-button-component {
+  background-color: #f39c12;
+  color: white;
+}
+.pay-now-button-component:hover {
+  background-color: #d35400;
+}
+.mock-payment-note {
+    font-size: 0.8rem;
+    color: #777;
+    text-align: center;
+    margin-top: 15px;
+}
+
+
+@media (max-width: 768px) {
+  .form-row-component {
+    flex-direction: column;
+    gap: 0; /* Remove gap if items stack and have their own margin-bottom */
+  }
+   .form-row-component .form-group-component {
+    margin-bottom: 15px; /* Add margin back for stacked items */
+  }
+   .form-row-component .form-group-component:last-child {
+    margin-bottom: 0;
+  }
+}

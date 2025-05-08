@@ -1,0 +1,32 @@
+/* /filepath: c:\Users\anees\Downloads\Compressed\library-management-system_2\frontend\src\components\dashboardComponents\MessageDisplay.css */
+.message-display {
+  margin: 10px 0; /* Adjusted margin for placement within dashboard content area */
+  padding: 12px 15px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-display.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.message-display.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.message-display.info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.close-message-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: inherit;
+}

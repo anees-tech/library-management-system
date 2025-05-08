@@ -1,0 +1,295 @@
+.admin-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.page-header h1 {
+  color: #2c3e50;
+  margin: 0;
+}
+
+.add-button {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-button:hover {
+  background-color: #219653;
+}
+
+.search-bar {
+  display: flex;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.search-bar button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.search-bar button:hover {
+  background-color: #2980b9;
+}
+
+.search-bar .clear-search {
+  background-color: #95a5a6;
+}
+
+.search-bar .clear-search:hover {
+  background-color: #7f8c8d;
+}
+
+.filter-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.filter-tabs button {
+  background: none;
+  border: none;
+  padding: 10px 15px;
+  margin-right: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #555;
+  border-bottom: 3px solid transparent;
+}
+
+.filter-tabs button:hover {
+  color: #3498db;
+}
+
+.filter-tabs button.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+  font-weight: 600;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.admin-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.admin-table .actions-cell {
+  display: flex;
+  gap: 5px;
+}
+
+.admin-table button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.admin-table .edit-button {
+  background-color: #3498db;
+  color: white;
+}
+
+.admin-table .edit-button:hover {
+  background-color: #2980b9;
+}
+
+.admin-table .delete-button {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.admin-table .delete-button:hover {
+  background-color: #c0392b;
+}
+
+.admin-table .delete-button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.admin-table .view-button {
+  background-color: #f39c12;
+  color: white;
+}
+
+.admin-table .view-button:hover {
+  background-color: #d35400;
+}
+
+.admin-table .return-button {
+  background-color: #27ae60;
+  color: white;
+}
+
+.admin-table .return-button:hover {
+  background-color: #219653;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.borrowed {
+  background-color: #3498db;
+  color: white;
+}
+
+.status-badge.returned {
+  background-color: #27ae60;
+  color: white;
+}
+
+.status-badge.overdue {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.role-badge.student {
+  background-color: #3498db;
+  color: white;
+}
+
+.role-badge.staff {
+  background-color: #f39c12;
+  color: white;
+}
+
+.role-badge.admin {
+  background-color: #8e44ad;
+  color: white;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.no-data {
+  text-align: center;
+  padding: 30px;
+  color: #7f8c8d;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background: none;
+  border: none;
+  color: #721c24;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.overdue-row {
+  background-color: #fff3f3;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .search-bar {
+    flex-direction: column;
+  }
+
+  .filter-tabs {
+    flex-wrap: wrap;
+  }
+
+  .admin-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .admin-table .actions-cell {
+    flex-direction: column;
+  }
+}

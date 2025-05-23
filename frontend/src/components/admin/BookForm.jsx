@@ -10,9 +10,11 @@ const BookForm = ({ book, onSubmit, onCancel }) => {
     isbn: "",
     category: "",
     quantity: 1,
+    imageUrl: "",
   })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [previewImage, setPreviewImage] = useState("")
 
   useEffect(() => {
     if (book) {
@@ -22,7 +24,9 @@ const BookForm = ({ book, onSubmit, onCancel }) => {
         isbn: book.isbn || "",
         category: book.category || "",
         quantity: book.quantity || 1,
+        imageUrl: book.imageUrl || "",
       })
+      setPreviewImage(book.imageUrl || "")
     }
   }, [book])
 
@@ -34,6 +38,15 @@ const BookForm = ({ book, onSubmit, onCancel }) => {
     })
   }
 
+  const handleImageChange = (e) => {
+    const imageUrl = e.target.value
+    setFormData({
+      ...formData,
+      imageUrl,
+    })
+    setPreviewImage(imageUrl) // Update preview image
+  }
+
   const validate = () => {
     const newErrors = {}
     if (!formData.title.trim()) newErrors.title = "Title is required"
@@ -41,9 +54,23 @@ const BookForm = ({ book, onSubmit, onCancel }) => {
     if (!formData.isbn.trim()) newErrors.isbn = "ISBN is required"
     if (!formData.category.trim()) newErrors.category = "Category is required"
     if (!formData.quantity || formData.quantity < 1) newErrors.quantity = "Quantity must be at least 1"
+    // URL validation is optional since image might not be provided
+    if (formData.imageUrl && !isValidUrl(formData.imageUrl)) {
+      newErrors.imageUrl = "Please enter a valid URL"
+    }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
+  }
+
+  // Simple URL validation helper
+  const isValidUrl = (string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -100,6 +127,35 @@ const BookForm = ({ book, onSubmit, onCancel }) => {
         <label htmlFor="quantity">Quantity</label>
         <input type="number" id="quantity" name="quantity" min="1" value={formData.quantity} onChange={handleChange} />
         {errors.quantity && <span className="error">{errors.quantity}</span>}
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="imageUrl">Book Image URL</label>
+        <input
+          type="text"
+          id="imageUrl"
+          name="imageUrl"
+          value={formData.imageUrl}
+          onChange={handleImageChange}
+          placeholder="https://example.com/book-image.jpg"
+        />
+        {errors.imageUrl && <span className="error">{errors.imageUrl}</span>}
+        
+        {previewImage && (
+          <div className="image-preview">
+            <p>Image Preview:</p>
+            <img 
+              src={previewImage} 
+              alt="Book preview" 
+              style={{ maxWidth: '100%', maxHeight: '200px', marginTop: '10px' }} 
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://via.placeholder.com/150?text=Image+Error';
+                setErrors({...errors, imageUrl: "Image URL is invalid or inaccessible"});
+              }}
+            />
+          </div>
+        )}
       </div>
 
       <div className="form-actions">

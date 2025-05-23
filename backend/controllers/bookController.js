@@ -44,7 +44,7 @@ export const getBookById = async (req, res) => {
 // Create a new book
 export const createBook = async (req, res) => {
   try {
-    const { title, author, isbn, category, quantity } = req.body
+    const { title, author, isbn, category, quantity, imageUrl } = req.body // Add imageUrl to destructuring
 
     // Check if book with ISBN already exists
     const existingBook = await Book.findOne({ isbn })
@@ -62,6 +62,7 @@ export const createBook = async (req, res) => {
       category,
       quantity,
       availableQuantity: quantity,
+      imageUrl: imageUrl || "", // Add this line to save the imageUrl
     })
 
     res.status(201).json({
@@ -80,7 +81,7 @@ export const createBook = async (req, res) => {
 // Update a book
 export const updateBook = async (req, res) => {
   try {
-    const { title, author, isbn, category, quantity } = req.body
+    const { title, author, category, quantity, imageUrl } = req.body // Add imageUrl to destructuring
 
     const book = await Book.findById(req.params.id)
     if (!book) {
@@ -106,10 +107,10 @@ export const updateBook = async (req, res) => {
       {
         title,
         author,
-        isbn,
         category,
         quantity,
         availableQuantity: newAvailableQuantity,
+        imageUrl: imageUrl || book.imageUrl, // Add this line, keeping old image URL if not provided
       },
       { new: true, runValidators: true },
     )

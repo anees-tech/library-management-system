@@ -5,11 +5,30 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
   transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 
 .book-card-component:hover {
   transform: translateY(-5px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.book-image-container {
+  height: 200px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+}
+
+.book-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .book-card-component h3 {
@@ -33,7 +52,7 @@
   padding: 8px 12px;
   cursor: pointer;
   width: 100%;
-  margin-top: 10px;
+  margin-top: auto; /* Push button to bottom */
   font-weight: 600;
   font-size: 0.9rem;
 }

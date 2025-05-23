@@ -221,7 +221,7 @@ const AdminBooks = ({ user, onLogout }) => {
                     <button
                       className="delete-button"
                       onClick={() => handleDeleteBook(book)}
-                      disabled={book.quantity !== book.availableQuantity}
+                      // disabled={book.quantity !== book.availableQuantity}
                       title={book.quantity !== book.availableQuantity ? "Cannot delete book with borrowed copies" : ""}
                     >
                       Delete

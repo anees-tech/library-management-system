@@ -15,7 +15,9 @@ const Dashboard = ({ user, onLogout }) => {
   const [books, setBooks] = useState([])
   const [myBorrows, setMyBorrows] = useState([])
   const [loading, setLoading] = useState(true) // General loading for tabs
-  const [bookActionLoading, setBookActionLoading] = useState(false) // For borrow/return actions
+  const [loadingBookIds, setLoadingBookIds] = useState({}) // Track loading state by book ID
+  const [searchLoading, setSearchLoading] = useState(false) // For search operations
+  const [returnLoading, setReturnLoading] = useState(false) // For return book operations
   const [searchTerm, setSearchTerm] = useState("")
   const [message, setMessage] = useState({ type: "", text: "" })
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
@@ -32,7 +34,7 @@ const Dashboard = ({ user, onLogout }) => {
 
   const fetchBooks = useCallback(async (isSearch = false) => {
     if (!isSearch) setLoading(true) // Full loading only on tab switch/initial load
-    else setBookActionLoading(true) // Use action loading for search within tab
+    else setSearchLoading(true) // Use search loading for search within tab
 
     try {
       const url = searchTerm.trim() && isSearch
@@ -50,7 +52,7 @@ const Dashboard = ({ user, onLogout }) => {
       showMessage("error", error.message || "Failed to load books.")
     } finally {
       if (!isSearch) setLoading(false)
-      else setBookActionLoading(false)
+      else setSearchLoading(false)
     }
   }, [searchTerm, API_BASE_URL])
 
@@ -97,7 +99,9 @@ const Dashboard = ({ user, onLogout }) => {
   }
 
   const borrowBook = async (bookId) => {
-    setBookActionLoading(true)
+    // Set loading for just this specific book
+    setLoadingBookIds(prev => ({ ...prev, [bookId]: true }))
+
     try {
       const dueDate = new Date()
       dueDate.setDate(dueDate.getDate() + 14)
@@ -119,12 +123,17 @@ const Dashboard = ({ user, onLogout }) => {
       console.error("Error borrowing book:", error)
       showMessage("error", error.message || "Failed to borrow book.")
     } finally {
-      setBookActionLoading(false)
+      // Clear loading state for just this book
+      setLoadingBookIds(prev => {
+        const newState = { ...prev }
+        delete newState[bookId]
+        return newState
+      })
     }
   }
 
   const returnBook = async (borrowId) => {
-    setBookActionLoading(true)
+    setReturnLoading(true) // Use returnLoading instead of bookActionLoading
     try {
       const response = await fetch(`${API_BASE_URL}/borrows/${borrowId}/return`, { method: "PUT" })
       const data = await response.json()
@@ -141,7 +150,7 @@ const Dashboard = ({ user, onLogout }) => {
       console.error("Error returning book:", error)
       showMessage("error", error.message || "Failed to return book.")
     } finally {
-      setBookActionLoading(false)
+      setReturnLoading(false) // Use returnLoading instead of bookActionLoading
     }
   }
 
@@ -185,7 +194,8 @@ const Dashboard = ({ user, onLogout }) => {
             onSearch={handleSearchBooks}
             onClearSearch={handleClearSearch}
             onBorrowBook={borrowBook}
-            borrowLoading={bookActionLoading}
+            loadingBookIds={loadingBookIds} // Pass the map instead of a single boolean
+            searchLoading={searchLoading}
           />
         )}
 
@@ -195,7 +205,7 @@ const Dashboard = ({ user, onLogout }) => {
             loading={loading}
             onReturnBook={returnBook}
             onOpenPaymentModal={handleOpenPaymentModal}
-            returnLoading={bookActionLoading}
+            returnLoading={returnLoading} // Use returnLoading instead of bookActionLoading
             isOverdue={isOverdue}
           />
         )}

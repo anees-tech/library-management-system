@@ -2,9 +2,16 @@
 import React from 'react';
 import './BookCard.css';
 
-const BookCard = ({ book, onBorrow, borrowLoading }) => {
+const BookCard = ({ book, onBorrow, loadingBookIds }) => {
+  const isLoading = loadingBookIds[book._id] || false;
+  
   return (
     <div className="book-card-component">
+      {book.imageUrl && (
+        <div className="book-image-container">
+          <img src={book.imageUrl} alt={book.title} className="book-image" />
+        </div>
+      )}
       <h3>{book.title}</h3>
       <p>
         <strong>Author:</strong> {book.author}
@@ -21,9 +28,9 @@ const BookCard = ({ book, onBorrow, borrowLoading }) => {
       <button
         className="borrow-button-component"
         onClick={() => onBorrow(book._id)}
-        disabled={book.availableQuantity === 0 || borrowLoading}
+        disabled={book.availableQuantity === 0 || isLoading}
       >
-        {borrowLoading ? "Processing..." : book.availableQuantity === 0 ? "Not Available" : "Borrow"}
+        {isLoading ? "Processing..." : book.availableQuantity === 0 ? "Not Available" : "Borrow"}
       </button>
     </div>
   );

@@ -13,7 +13,7 @@ const BooksView = ({
   onSearch,
   onClearSearch,
   onBorrowBook,
-  borrowLoading,
+  loadingBookIds,
 }) => {
   return (
     <div className="books-view-component">
@@ -43,7 +43,7 @@ const BooksView = ({
               key={book._id}
               book={book}
               onBorrow={onBorrowBook}
-              borrowLoading={borrowLoading}
+              loadingBookIds={loadingBookIds}
             />
           ))}
         </div>

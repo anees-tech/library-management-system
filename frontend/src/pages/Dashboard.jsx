@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import "../styles/Dashboard.css" // Main dashboard styles
-import DashboardHeader from "../components/dashboardComponents/DashboardHeader"
-import DashboardNav from "../components/dashboardComponents/DashboardNav"
+import { Link } from "react-router-dom"
+import { FaSearch, FaUser, FaShoppingCart, FaPlusCircle, FaNewspaper, FaCog, FaHome, FaBook } from "react-icons/fa"
+import "../styles/Dashboard.css"
 import MessageDisplay from "../components/dashboardComponents/MessageDisplay"
 import BooksView from "../components/dashboardComponents/BooksView"
 import BorrowsView from "../components/dashboardComponents/BorrowsView"
@@ -14,14 +14,15 @@ const Dashboard = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState("books")
   const [books, setBooks] = useState([])
   const [myBorrows, setMyBorrows] = useState([])
-  const [loading, setLoading] = useState(true) // General loading for tabs
-  const [loadingBookIds, setLoadingBookIds] = useState({}) // Track loading state by book ID
-  const [searchLoading, setSearchLoading] = useState(false) // For search operations
-  const [returnLoading, setReturnLoading] = useState(false) // For return book operations
+  const [loading, setLoading] = useState(true)
+  const [loadingBookIds, setLoadingBookIds] = useState({})
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [returnLoading, setReturnLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [message, setMessage] = useState({ type: "", text: "" })
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [selectedBorrowForPayment, setSelectedBorrowForPayment] = useState(null)
+  const [featuredBooks, setFeaturedBooks] = useState([])
 
   const API_BASE_URL = "http://localhost:5000/api"
 
@@ -33,8 +34,8 @@ const Dashboard = ({ user, onLogout }) => {
   }
 
   const fetchBooks = useCallback(async (isSearch = false) => {
-    if (!isSearch) setLoading(true) // Full loading only on tab switch/initial load
-    else setSearchLoading(true) // Use search loading for search within tab
+    if (!isSearch) setLoading(true)
+    else setSearchLoading(true)
 
     try {
       const url = searchTerm.trim() && isSearch
@@ -47,6 +48,11 @@ const Dashboard = ({ user, onLogout }) => {
         throw new Error(data.message || "Failed to fetch books")
       }
       setBooks(data.data || [])
+
+      // Set featured books to the first 5 books
+      if (!isSearch && data.data && data.data.length > 0) {
+        setFeaturedBooks(data.data.slice(0, 5))
+      }
     } catch (error) {
       console.error("Error fetching books:", error)
       showMessage("error", error.message || "Failed to load books.")
@@ -78,28 +84,26 @@ const Dashboard = ({ user, onLogout }) => {
   useEffect(() => {
     if (user && user._id) {
       if (activeTab === "books") {
-        fetchBooks(false) // false indicates not a search action from within the tab
+        fetchBooks(false)
       } else if (activeTab === "borrows") {
         fetchMyBorrows()
       } else if (activeTab === "profile") {
-        // Profile might need borrows, fetch if not already loaded or stale
         if (myBorrows.length === 0) fetchMyBorrows()
-        setLoading(false) // Profile data is mostly from `user` prop or derived
+        setLoading(false)
       }
     }
   }, [user, activeTab, fetchBooks, fetchMyBorrows, myBorrows.length])
 
   const handleSearchBooks = () => {
-    fetchBooks(true) // true indicates it's a search action
+    fetchBooks(true)
   }
 
   const handleClearSearch = () => {
     setSearchTerm("")
-    fetchBooks(false) // Call with isSearch = false to reload all
+    fetchBooks(false)
   }
 
   const borrowBook = async (bookId) => {
-    // Set loading for just this specific book
     setLoadingBookIds(prev => ({ ...prev, [bookId]: true }))
 
     try {
@@ -116,14 +120,13 @@ const Dashboard = ({ user, onLogout }) => {
       if (!response.ok) throw new Error(data.message || "Failed to borrow book")
 
       showMessage("success", `Book borrowed! Due: ${new Date(dueDate).toLocaleDateString()}`)
-      fetchBooks(false) // Refresh book list (available quantity)
-      if (activeTab === "borrows") fetchMyBorrows() // Refresh borrows if on that tab
-      else setMyBorrows((prev) => [...prev, data.data]) // Optimistically update borrows
+      fetchBooks(false)
+      if (activeTab === "borrows") fetchMyBorrows()
+      else setMyBorrows((prev) => [...prev, data.data])
     } catch (error) {
       console.error("Error borrowing book:", error)
       showMessage("error", error.message || "Failed to borrow book.")
     } finally {
-      // Clear loading state for just this book
       setLoadingBookIds(prev => {
         const newState = { ...prev }
         delete newState[bookId]
@@ -133,7 +136,7 @@ const Dashboard = ({ user, onLogout }) => {
   }
 
   const returnBook = async (borrowId) => {
-    setReturnLoading(true) // Use returnLoading instead of bookActionLoading
+    setReturnLoading(true)
     try {
       const response = await fetch(`${API_BASE_URL}/borrows/${borrowId}/return`, { method: "PUT" })
       const data = await response.json()
@@ -144,13 +147,13 @@ const Dashboard = ({ user, onLogout }) => {
       if (data.data.fine > 0) {
         showMessage("info", `Fine of Rs. ${data.data.fine} for late return.`)
       }
-      fetchMyBorrows() // Refresh borrows list
-      fetchBooks(false) // Refresh book list (available quantity)
+      fetchMyBorrows()
+      fetchBooks(false)
     } catch (error) {
       console.error("Error returning book:", error)
       showMessage("error", error.message || "Failed to return book.")
     } finally {
-      setReturnLoading(false) // Use returnLoading instead of bookActionLoading
+      setReturnLoading(false)
     }
   }
 
@@ -160,60 +163,134 @@ const Dashboard = ({ user, onLogout }) => {
   }
 
   const payFine = async (borrowId, amount) => {
-    // Mock payment
     console.log(`Attempting to pay fine for borrowId: ${borrowId}, amount: ${amount}`)
     showMessage("success", `Fine of Rs. ${amount} marked as paid (mock)!`)
     setPaymentModalOpen(false)
     setSelectedBorrowForPayment(null)
-    fetchMyBorrows() // Refresh borrows to show updated status (e.g., fine paid)
+    fetchMyBorrows()
   }
 
   const isOverdue = useCallback((dueDateStr) => {
     if (!dueDateStr) return false
     const dueDate = new Date(dueDateStr)
     const today = new Date()
-    today.setHours(0, 0, 0, 0) // Compare dates only
+    today.setHours(0, 0, 0, 0)
     dueDate.setHours(0, 0, 0, 0)
     return dueDate < today
   }, [])
 
   return (
-    <div className="dashboard-container">
-      <DashboardHeader userName={user.name} onLogout={onLogout} />
-      <DashboardNav activeTab={activeTab} onTabChange={setActiveTab} />
+    <div className="modern-library-dashboard">
 
-      <main className="dashboard-content">
+      {/* Secondary Navigation */}
+      <nav className="secondary-nav">
+        <div className="secondary-nav-content">
+          <div className="nav-icon">
+            <Link to="/">
+              <FaHome />
+            </Link>
+          </div>
+
+          <div className="nav-actions">
+            <Link to="#" className={`nav-action-link ${activeTab === 'borrows' ? 'active' : ''}`} onClick={() => setActiveTab('borrows')}>
+              <FaBook />
+              <span className="count-badge">{myBorrows.length}</span>
+            </Link>
+            <Link to="#" className={`nav-action-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
+              <FaUser />
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section (only show on books tab) */}
+      {activeTab === 'books' && (
+        <section className="hero-section">
+          <div className="hero-content">
+            <h1>Library Management<br /><span className="hero-emphasis">SYSTEM</span></h1>
+            <p>Find and borrow books from our extensive collection</p>
+          </div>
+        </section>
+      )}
+
+      {/* Tab specific content */}
+      <main className={`dashboard-main ${activeTab !== 'books' ? 'no-hero' : ''}`}>
         <MessageDisplay message={message} onClose={() => setMessage({ type: "", text: "" })} />
 
         {activeTab === "books" && (
-          <BooksView
-            books={books}
-            loading={loading && books.length === 0} // Show main loading if books empty
-            searchTerm={searchTerm}
-            onSearchTermChange={(e) => setSearchTerm(e.target.value)}
-            onSearch={handleSearchBooks}
-            onClearSearch={handleClearSearch}
-            onBorrowBook={borrowBook}
-            loadingBookIds={loadingBookIds} // Pass the map instead of a single boolean
-            searchLoading={searchLoading}
-          />
+          <div className="books-section">
+
+
+            {/* Original BooksView component */}
+            <BooksView
+              books={books}
+              loading={loading && books.length === 0}
+              searchTerm={searchTerm}
+              onSearchTermChange={(e) => setSearchTerm(e.target.value)}
+              onSearch={handleSearchBooks}
+              onClearSearch={handleClearSearch}
+              onBorrowBook={borrowBook}
+              loadingBookIds={loadingBookIds}
+              searchLoading={searchLoading}
+            />
+          </div>
         )}
 
         {activeTab === "borrows" && (
-          <BorrowsView
-            borrows={myBorrows}
-            loading={loading}
-            onReturnBook={returnBook}
-            onOpenPaymentModal={handleOpenPaymentModal}
-            returnLoading={returnLoading} // Use returnLoading instead of bookActionLoading
-            isOverdue={isOverdue}
-          />
+          <div className="borrows-section">
+            <div className="section-header">
+              <h2>My Borrowed Books</h2>
+            </div>
+            <BorrowsView
+              borrows={myBorrows}
+              loading={loading}
+              onReturnBook={returnBook}
+              onOpenPaymentModal={handleOpenPaymentModal}
+              returnLoading={returnLoading}
+              isOverdue={isOverdue}
+            />
+          </div>
         )}
 
         {activeTab === "profile" && user && (
-          <ProfileView user={user} myBorrows={myBorrows} isOverdue={isOverdue} />
+          <div className="profile-section">
+            <div className="section-header">
+              <h2>My Profile</h2>
+            </div>
+            <ProfileView user={user} myBorrows={myBorrows} isOverdue={isOverdue} />
+          </div>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="dashboard-footer">
+        <div className="footer-content">
+          <div className="footer-section">
+            <h3>About Library</h3>
+            <p>Our library management system offers a comprehensive solution for accessing and managing library resources.</p>
+          </div>
+
+          <div className="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><Link to="#">Home</Link></li>
+              <li><Link to="#">Browse Books</Link></li>
+              <li><Link to="#">Services</Link></li>
+              <li><Link to="#">Contact</Link></li>
+            </ul>
+          </div>
+
+          <div className="footer-section">
+            <h3>Contact</h3>
+            <p>Email: info@library.com</p>
+            <p>Phone: (123) 456-7890</p>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <p>&copy; 2025 Library Management System. All rights reserved.</p>
+        </div>
+      </footer>
 
       <PaymentModal
         isOpen={paymentModalOpen}

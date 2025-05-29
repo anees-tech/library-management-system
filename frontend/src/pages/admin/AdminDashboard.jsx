@@ -2,7 +2,17 @@
 
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import AdminLayout from "../../components/admin/AdminLayout"
+import { 
+  FaUsers, 
+  FaBook, 
+  FaNewspaper, 
+  FaBookOpen,  // Changed from FaMagazine to FaBookOpen
+  FaCheckCircle, 
+  FaUndo, 
+  FaExclamationCircle,
+  FaEye
+} from "react-icons/fa"
+import AdminSidebar from "../../components/admin/AdminSidebar"
 import "../../styles/AdminDashboard.css"
 
 const AdminDashboard = ({ user, onLogout }) => {
@@ -12,6 +22,11 @@ const AdminDashboard = ({ user, onLogout }) => {
     totalUsers: 0,
     activeBorrows: 0,
     overdueBorrows: 0,
+    totalNewspapers: 7, // Default/placeholder values
+    totalMagazines: 4,  // Default/placeholder values
+    issuedBooks: 0,
+    returnedBooks: 0,
+    notReturnedBooks: 0
   })
   const [recentBorrows, setRecentBorrows] = useState([])
   const [loading, setLoading] = useState(true)
@@ -39,6 +54,9 @@ const AdminDashboard = ({ user, onLogout }) => {
         const totalBooks = booksData.data.reduce((sum, book) => sum + book.quantity, 0)
         const availableBooks = booksData.data.reduce((sum, book) => sum + book.availableQuantity, 0)
         const activeBorrows = borrowsData.data.filter((borrow) => borrow.status !== "returned").length
+        const issuedBooks = borrowsData.data.length
+        const returnedBooks = borrowsData.data.filter((borrow) => borrow.status === "returned").length
+        const notReturnedBooks = issuedBooks - returnedBooks
 
         setStats({
           totalBooks,
@@ -46,6 +64,11 @@ const AdminDashboard = ({ user, onLogout }) => {
           totalUsers: usersData.count,
           activeBorrows,
           overdueBorrows: overdueData.count,
+          totalNewspapers: 7, // You can replace with actual API data when available
+          totalMagazines: 4, // You can replace with actual API data when available
+          issuedBooks,
+          returnedBooks,
+          notReturnedBooks
         })
 
         // Get recent borrows (last 5)
@@ -65,57 +88,127 @@ const AdminDashboard = ({ user, onLogout }) => {
   }, [])
 
   return (
-    <AdminLayout user={user} onLogout={onLogout}>
-      <div className="admin-dashboard">
-        <h1>Admin Dashboard</h1>
+    <div className="admin-container">
+      <AdminSidebar user={user} onLogout={onLogout} />
+      
+      <div className="admin-content">
+        <header className="admin-header">
+          <h1>Control Panel</h1>
+          <div className="admin-header-right">
+            <span className="admin-greeting">Admin</span>
+            <span className="separator">›</span>
+            <span className="current-section">Dashboard</span>
+          </div>
+        </header>
 
         {loading ? (
-          <div className="loading">Loading dashboard data...</div>
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Loading dashboard data...</p>
+          </div>
         ) : (
-          <>
-            <div className="stats-grid">
-              <div className="stat-card">
-                <h3>Total Books</h3>
-                <p className="stat-value">{stats.totalBooks}</p>
-                <Link to="/admin/books" className="stat-link">
-                  Manage Books
-                </Link>
+          <div className="dashboard-content">
+            {/* Top Row - First set of stats */}
+            <div className="stats-row">
+              <div className="stat-card green">
+                <div className="stat-info">
+                  <div className="stat-number">{stats.totalUsers}</div>
+                  <div className="stat-label">Registered Members</div>
+                </div>
+                <div className="stat-icon">
+                  <FaUsers />
+                </div>
+                <div className="stat-footer">
+                  <Link to="/admin/users">View More <FaEye /></Link>
+                </div>
               </div>
 
-              <div className="stat-card">
-                <h3>Available Books</h3>
-                <p className="stat-value">{stats.availableBooks}</p>
-                <p className="stat-info">{stats.totalBooks - stats.availableBooks} currently borrowed</p>
+              <div className="stat-card blue">
+                <div className="stat-info">
+                  <div className="stat-number">{stats.totalBooks}</div>
+                  <div className="stat-label">Total Books</div>
+                </div>
+                <div className="stat-icon">
+                  <FaBook />
+                </div>
+                <div className="stat-footer">
+                  <Link to="/admin/books">View More <FaEye /></Link>
+                </div>
               </div>
 
-              <div className="stat-card">
-                <h3>Total Users</h3>
-                <p className="stat-value">{stats.totalUsers}</p>
-                <Link to="/admin/users" className="stat-link">
-                  Manage Users
-                </Link>
+              <div className="stat-card purple">
+                <div className="stat-info">
+                  <div className="stat-number">{stats.totalNewspapers}</div>
+                  <div className="stat-label">Available Newspapers</div>
+                </div>
+                <div className="stat-icon">
+                  <FaNewspaper />
+                </div>
+                <div className="stat-footer">
+                  <Link to="/admin/newspapers">View More <FaEye /></Link>
+                </div>
               </div>
 
-              <div className="stat-card">
-                <h3>Active Borrows</h3>
-                <p className="stat-value">{stats.activeBorrows}</p>
-                <Link to="/admin/borrows" className="stat-link">
-                  Manage Borrows
-                </Link>
-              </div>
-
-              <div className="stat-card overdue">
-                <h3>Overdue Books</h3>
-                <p className="stat-value">{stats.overdueBorrows}</p>
-                <Link to="/admin/borrows?filter=overdue" className="stat-link">
-                  View Overdue
-                </Link>
+              <div className="stat-card red">
+                <div className="stat-info">
+                  <div className="stat-number">{stats.totalMagazines}</div>
+                  <div className="stat-label">Available Magazines</div>
+                </div>
+                <div className="stat-icon">
+                  <FaBookOpen /> {/* Update this line in your component */}
+                </div>
+                <div className="stat-footer">
+                  <Link to="/admin/magazines">View More <FaEye /></Link>
+                </div>
               </div>
             </div>
 
-            <div className="recent-activity">
-              <h2>Recent Borrows</h2>
-              {recentBorrows.length > 0 ? (
+            {/* Bottom Row - Second set of stats */}
+            <div className="stats-row">
+              <div className="stat-card orange">
+                <div className="stat-info">
+                  <div className="stat-number">{stats.issuedBooks}</div>
+                  <div className="stat-label">Total Issued Books</div>
+                </div>
+                <div className="stat-icon">
+                  <FaCheckCircle />
+                </div>
+                <div className="stat-footer">
+                  <Link to="/admin/borrows">View More <FaEye /></Link>
+                </div>
+              </div>
+
+              <div className="stat-card navy">
+                <div className="stat-info">
+                  <div className="stat-number">{stats.returnedBooks}</div>
+                  <div className="stat-label">Total Returned Books</div>
+                </div>
+                <div className="stat-icon">
+                  <FaUndo />
+                </div>
+                <div className="stat-footer">
+                  <Link to="/admin/borrows?filter=returned">View More <FaEye /></Link>
+                </div>
+              </div>
+
+              <div className="stat-card coral">
+                <div className="stat-info">
+                  <div className="stat-number">{stats.notReturnedBooks}</div>
+                  <div className="stat-label">Not-Returned Books</div>
+                </div>
+                <div className="stat-icon">
+                  <FaExclamationCircle />
+                </div>
+                <div className="stat-footer">
+                  <Link to="/admin/borrows?filter=not-returned">View More <FaEye /></Link>
+                </div>
+              </div>
+            </div>
+
+            {/* You can keep the recent activity section if desired */}
+            {recentBorrows.length > 0 && (
+              <div className="recent-activity">
+                <h2>Recent Borrows</h2>
                 <table className="admin-table">
                   <thead>
                     <tr>
@@ -140,35 +233,15 @@ const AdminDashboard = ({ user, onLogout }) => {
                     ))}
                   </tbody>
                 </table>
-              ) : (
-                <p>No recent borrows found.</p>
-              )}
-              <Link to="/admin/borrows" className="view-all-link">
-                View All Borrows
-              </Link>
-            </div>
-
-            <div className="quick-actions">
-              <h2>Quick Actions</h2>
-              <div className="action-buttons">
-                <Link to="/admin/books" className="action-button">
-                  Add New Book
-                </Link>
-                <Link to="/admin/borrows" className="action-button">
-                  Issue Book
-                </Link>
-                <Link to="/admin/users" className="action-button">
-                  Add New User
-                </Link>
-                <Link to="/admin/reports" className="action-button">
-                  Generate Reports
+                <Link to="/admin/borrows" className="view-all-link">
+                  View All Borrows
                 </Link>
               </div>
-            </div>
-          </>
+            )}
+          </div>
         )}
       </div>
-    </AdminLayout>
+    </div>
   )
 }
 

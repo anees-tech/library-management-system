@@ -10,6 +10,7 @@ import AdminBooks from "./pages/admin/AdminBooks"
 import AdminBorrows from "./pages/admin/AdminBorrows"
 import AdminUsers from "./pages/admin/AdminUsers"
 import AdminReports from "./pages/admin/AdminReports"
+import AuthRoute from "./components/AuthRoute" // Import the AuthRoute component
 import "./App.css"
 
 function App() {
@@ -47,7 +48,11 @@ function App() {
       <Routes>
         <Route
           path="/login"
-          element={user ? <Navigate to={isAdmin ? "/admin" : "/dashboard"} /> : <Login onLogin={handleLogin} />}
+          element={
+            <AuthRoute>
+              <Login onLogin={handleLogin} /> {/* Replace setIsAuthenticated with onLogin */}
+            </AuthRoute>
+          }
         />
         <Route
           path="/signup"

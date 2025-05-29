@@ -1,13 +1,14 @@
-// filepath: c:\Users\anees\Downloads\Compressed\library-management-system_2\frontend\src\components\dashboardComponents\BooksView.jsx
-import React from 'react';
-import BookCard from './BookCard';
-import LoadingIndicator from './LoadingIndicator';
-import NoDataMessage from './NoDataMessage';
-import './BooksView.css';
+"use client"
+import React from "react"
+import BookCard from "./BookCard"
+import LoadingIndicator from "./LoadingIndicator"
+import NoDataMessage from "./NoDataMessage"
+import "./BooksView.css"
 
 const BooksView = ({
   books,
   loading,
+  searchLoading,
   searchTerm,
   onSearchTermChange,
   onSearch,
@@ -18,40 +19,36 @@ const BooksView = ({
   return (
     <div className="books-view-component">
       <h2>Available Books</h2>
-      <div className="search-container-component">
-        <input
-          type="text"
-          placeholder="Search by title, author, ISBN or category..."
-          value={searchTerm}
-          onChange={onSearchTermChange}
-          onKeyPress={(e) => e.key === "Enter" && onSearch()}
-        />
-        <button onClick={onSearch}>Search</button>
-        {searchTerm && (
-          <button className="clear-search-button" onClick={onClearSearch}>
-            Clear
-          </button>
-        )}
-      </div>
 
-      {loading ? (
+      {/* Show search loading indicator */}
+      {searchLoading && (
+        <div className="search-loading">
+          <LoadingIndicator text="Searching books..." />
+        </div>
+      )}
+
+      {/* Show main loading only when no books and not searching */}
+      {loading && !searchLoading ? (
         <LoadingIndicator text="Loading books..." />
       ) : books.length > 0 ? (
-        <div className="books-grid-component">
-          {books.map((book) => (
-            <BookCard
-              key={book._id}
-              book={book}
-              onBorrow={onBorrowBook}
-              loadingBookIds={loadingBookIds}
-            />
-          ))}
-        </div>
-      ) : (
-        <NoDataMessage text="No books found." />
-      )}
+        <>
+          {searchTerm && (
+            <div className="search-results-info">
+              Found {books.length} book{books.length !== 1 ? "s" : ""}
+              {searchTerm && ` for "${searchTerm}"`}
+            </div>
+          )}
+          <div className="books-grid-component">
+            {books.map((book) => (
+              <BookCard key={book._id} book={book} onBorrow={onBorrowBook} loadingBookIds={loadingBookIds} />
+            ))}
+          </div>
+        </>
+      ) : !loading && !searchLoading ? (
+        <NoDataMessage text={searchTerm ? `No books found for "${searchTerm}".` : "No books found."} />
+      ) : null}
     </div>
-  );
-};
+  )
+}
 
-export default BooksView;
+export default BooksView

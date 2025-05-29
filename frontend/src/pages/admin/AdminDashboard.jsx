@@ -1,4 +1,5 @@
 "use client"
+import React from "react"
 
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
@@ -133,32 +134,6 @@ const AdminDashboard = ({ user, onLogout }) => {
                 </div>
                 <div className="stat-footer">
                   <Link to="/admin/books">View More <FaEye /></Link>
-                </div>
-              </div>
-
-              <div className="stat-card purple">
-                <div className="stat-info">
-                  <div className="stat-number">{stats.totalNewspapers}</div>
-                  <div className="stat-label">Available Newspapers</div>
-                </div>
-                <div className="stat-icon">
-                  <FaNewspaper />
-                </div>
-                <div className="stat-footer">
-                  <Link to="/admin/newspapers">View More <FaEye /></Link>
-                </div>
-              </div>
-
-              <div className="stat-card red">
-                <div className="stat-info">
-                  <div className="stat-number">{stats.totalMagazines}</div>
-                  <div className="stat-label">Available Magazines</div>
-                </div>
-                <div className="stat-icon">
-                  <FaBookOpen /> {/* Update this line in your component */}
-                </div>
-                <div className="stat-footer">
-                  <Link to="/admin/magazines">View More <FaEye /></Link>
                 </div>
               </div>
             </div>

@@ -1,14 +1,15 @@
 "use client"
+import React from "react"
 
 import { useState, useEffect } from "react"
 import "../../styles/AdminForms.css"
 
-const BookForm = ({ book, onSubmit, onCancel }) => {
+const BookForm = ({ book, onSubmit, onCancel, categories }) => { // Add categories to props
   const [formData, setFormData] = useState({
     title: "",
     author: "",
     isbn: "",
-    category: "",
+    category: categories && categories.length > 0 ? categories[0] : "", // Default to first category or empty
     quantity: 1,
     imageUrl: "",
   })
@@ -22,13 +23,25 @@ const BookForm = ({ book, onSubmit, onCancel }) => {
         title: book.title || "",
         author: book.author || "",
         isbn: book.isbn || "",
-        category: book.category || "",
+        category: book.category || (categories && categories.length > 0 ? categories[0] : ""),
         quantity: book.quantity || 1,
-        imageUrl: book.imageUrl || "",
+        imageUrl: book.imageUrl || book.coverImage || "", // check for coverImage as well
       })
-      setPreviewImage(book.imageUrl || "")
+      setPreviewImage(book.imageUrl || book.coverImage || "")
+    } else {
+      // For new book, ensure category defaults correctly if categories are available
+      setFormData(prev => ({
+        ...prev,
+        category: categories && categories.length > 0 ? categories[0] : "",
+        title: "", // Reset other fields for new book form
+        author: "",
+        isbn: "",
+        quantity: 1,
+        imageUrl: "",
+      }));
+      setPreviewImage("");
     }
-  }, [book])
+  }, [book, categories])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -52,7 +65,7 @@ const BookForm = ({ book, onSubmit, onCancel }) => {
     if (!formData.title.trim()) newErrors.title = "Title is required"
     if (!formData.author.trim()) newErrors.author = "Author is required"
     if (!formData.isbn.trim()) newErrors.isbn = "ISBN is required"
-    if (!formData.category.trim()) newErrors.category = "Category is required"
+    if (!formData.category || formData.category.trim() === "") newErrors.category = "Category is required" // Ensure category is selected
     if (!formData.quantity || formData.quantity < 1) newErrors.quantity = "Quantity must be at least 1"
     // URL validation is optional since image might not be provided
     if (formData.imageUrl && !isValidUrl(formData.imageUrl)) {
@@ -119,7 +132,15 @@ const BookForm = ({ book, onSubmit, onCancel }) => {
 
       <div className="form-group">
         <label htmlFor="category">Category</label>
-        <input type="text" id="category" name="category" value={formData.category} onChange={handleChange} />
+        <select id="category" name="category" value={formData.category} onChange={handleChange}>
+          {/* Optional: Add a default "Select a category" option if you don't want to default to the first one */}
+          {/* <option value="">Select a category</option> */}
+          {categories && categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
         {errors.category && <span className="error">{errors.category}</span>}
       </div>
 

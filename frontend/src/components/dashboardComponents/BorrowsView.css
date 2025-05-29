@@ -1,13 +1,18 @@
 .borrows-view-component h2 {
-    color: #2c3e50;
-    margin-top: 0;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 10px;
-  }
-  
-  .borrows-list-component {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 25px;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 12px;
+  font-size: 1.8rem;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.borrows-list-component {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}

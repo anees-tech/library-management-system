@@ -1,20 +1,21 @@
+import React from "react"
 import { Link, useLocation } from "react-router-dom";
-import { 
-  FaChartBar, 
-  FaUsers, 
-  FaBook, 
-  FaNewspaper, 
+import {
+  FaChartBar,
+  FaUsers,
+  FaBook,
+  FaNewspaper,
   FaBookOpen,  // Changed from FaMagazine to FaBookOpen
-  FaList, 
-  FaUndo, 
-  FaExclamationCircle, 
+  FaList,
+  FaUndo,
+  FaExclamationCircle,
   FaSignOutAlt
 } from "react-icons/fa";
 import "../../styles/AdminSidebar.css";
 
 const AdminSidebar = ({ user, onLogout }) => {
   const location = useLocation();
-  
+
   const isActive = (path) => {
     return location.pathname === path ? "active" : "";
   };
@@ -32,7 +33,7 @@ const AdminSidebar = ({ user, onLogout }) => {
       </div>
 
       <div className="sidebar-title">Main Menu</div>
-      
+
       <nav className="sidebar-nav">
         <ul>
           <li className={isActive("/admin")}>
@@ -48,6 +49,12 @@ const AdminSidebar = ({ user, onLogout }) => {
           <li className={isActive("/admin/books")}>
             <Link to="/admin/books">
               <FaBook /> Books Section
+            </Link>
+          </li>
+          <li className={isActive("/admin/borrows")}>
+            <Link to="/admin/borrows">
+              <FaBookOpen /> Borrow Management
+
             </Link>
           </li>
           <li>

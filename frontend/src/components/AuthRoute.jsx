@@ -1,4 +1,5 @@
 import { Navigate } from "react-router-dom";
+import React from "react"
 
 // AuthRoute is used to redirect authenticated users away from auth pages
 // For example, redirect logged-in users away from login page

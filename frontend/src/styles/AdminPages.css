@@ -29,6 +29,24 @@
 .add-button:hover {
   background-color: #219653;
 }
+.admin-table td.borrows-info-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Or 'flex-start' and adjust button margin */
+}
+
+.admin-table .icon-button {
+  background: none;
+  border: none;
+  color: #555; /* Or your preferred icon color */
+  cursor: pointer;
+  padding: 5px;
+  font-size: 1.1em; /* Adjust icon size */
+}
+
+.admin-table .icon-button:hover {
+  color: #007bff; /* Or your preferred hover color */
+}
 
 .search-bar {
   display: flex;

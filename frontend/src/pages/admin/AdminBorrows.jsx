@@ -1,4 +1,5 @@
 "use client"
+import React from "react"
 
 import { useState, useEffect } from "react"
 import { useLocation } from "react-router-dom"
@@ -189,8 +190,8 @@ const AdminBorrows = ({ user, onLogout }) => {
             <tbody>
               {borrows.map((borrow) => (
                 <tr key={borrow._id} className={borrow.status === "overdue" ? "overdue-row" : ""}>
-                  <td>{borrow.book.title}</td>
-                  <td>{borrow.user.name}</td>
+                  <td>{borrow.book ? borrow.book.title : "Book N/A"}</td>
+                  <td>{borrow.user ? borrow.user.name : "User N/A"}</td>
                   <td>{new Date(borrow.borrowDate).toLocaleDateString()}</td>
                   <td>{new Date(borrow.dueDate).toLocaleDateString()}</td>
                   <td>{borrow.returnDate ? new Date(borrow.returnDate).toLocaleDateString() : "-"}</td>

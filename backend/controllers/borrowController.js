@@ -14,9 +14,19 @@ const calculateFine = (dueDate, returnDate = new Date()) => {
 // Get all borrows
 export const getAllBorrows = async (req, res) => {
   try {
-    const borrows = await Borrow.find()
+    const { bookId, userId } = req.query // Check for bookId or userId query params
+    let query = {}
+
+    if (bookId) {
+      query.book = bookId
+    }
+    if (userId) {
+      query.user = userId
+    }
+
+    const borrows = await Borrow.find(query) // Apply the query filter
       .populate("book", "title author isbn")
-      .populate("user", "name registrationNumber")
+      .populate("user", "name registrationNumber email") // Added email for user info
 
     res.status(200).json({
       success: true,

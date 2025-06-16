@@ -2,40 +2,45 @@ import mongoose from "mongoose"
 
 const borrowSchema = new mongoose.Schema(
   {
-    book: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Book",
-      required: true,
-    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    borrowDate: {
+    book: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Book",
+      required: true,
+    },
+    borrowedDate: {
       type: Date,
       default: Date.now,
-      required: true,
     },
     dueDate: {
       type: Date,
       required: true,
     },
-    returnDate: {
+    returnedDate: {
       type: Date,
-      default: null,
     },
     status: {
       type: String,
-      enum: ["borrowed", "returned", "overdue"],
+      enum: ["borrowed", "returned"],
       default: "borrowed",
     },
     fine: {
       type: Number,
       default: 0,
     },
+    finePaid: {
+      type: Boolean,
+      default: false, // Add this field to track if fine is paid
+    },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 )
 
-export default mongoose.model("Borrow", borrowSchema)
+const Borrow = mongoose.model("Borrow", borrowSchema)
+export default Borrow

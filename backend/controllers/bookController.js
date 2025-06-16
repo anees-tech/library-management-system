@@ -80,7 +80,7 @@ export const getBookById = async (req, res) => {
 // Create a new book
 export const createBook = async (req, res) => {
   try {
-    const { title, author, isbn, category, quantity, imageUrl } = req.body;
+    const { title, author, isbn, category, description, quantity, imageUrl } = req.body;
 
     // Validate required fields
     if (!title || !author || !isbn || !category || !quantity) {
@@ -104,6 +104,7 @@ export const createBook = async (req, res) => {
       author: author.trim(),
       isbn: isbn.trim(),
       category: category.trim(),
+      description: description ? description.trim() : "No description available.",
       quantity: Number.parseInt(quantity),
       availableQuantity: Number.parseInt(quantity),
       imageUrl: imageUrl || "",
@@ -125,7 +126,7 @@ export const createBook = async (req, res) => {
 // Update a book
 export const updateBook = async (req, res) => {
   try {
-    const { title, author, category, quantity, imageUrl } = req.body;
+    const { title, author, category, description, quantity, imageUrl } = req.body;
 
     const book = await Book.findById(req.params.id);
     if (!book) {
@@ -161,6 +162,7 @@ export const updateBook = async (req, res) => {
         title: title?.trim() || book.title,
         author: author?.trim() || book.author,
         category: category?.trim() || book.category,
+        description: description !== undefined ? (description.trim() || "No description available.") : book.description,
         quantity: newQuantity,
         availableQuantity: newAvailableQuantity,
         imageUrl: imageUrl !== undefined ? imageUrl : book.imageUrl,

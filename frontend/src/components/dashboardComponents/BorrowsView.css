@@ -1,14 +1,32 @@
+.borrows-view-component {
+  padding: 20px;
+}
+
 .borrows-view-component h2 {
-  color: #2c3e50;
-  margin-top: 0;
-  margin-bottom: 25px;
-  border-bottom: 3px solid #3498db;
-  padding-bottom: 12px;
-  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #1f2937;
+  font-size: 1.5rem;
   background: linear-gradient(135deg, #3498db, #2980b9);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.unpaid-fines-warning {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  color: #92400e;
+  font-weight: 500;
+}
+
+.unpaid-fines-warning p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .borrows-list-component {

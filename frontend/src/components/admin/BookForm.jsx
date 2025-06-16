@@ -10,6 +10,7 @@ const BookForm = ({ book, onSubmit, onCancel, categories }) => { // Add categori
     author: "",
     isbn: "",
     category: categories && categories.length > 0 ? categories[0] : "", // Default to first category or empty
+    description: "", // Add description field
     quantity: 1,
     imageUrl: "",
   })
@@ -24,6 +25,7 @@ const BookForm = ({ book, onSubmit, onCancel, categories }) => { // Add categori
         author: book.author || "",
         isbn: book.isbn || "",
         category: book.category || (categories && categories.length > 0 ? categories[0] : ""),
+        description: book.description || "", // Add description
         quantity: book.quantity || 1,
         imageUrl: book.imageUrl || book.coverImage || "", // check for coverImage as well
       })
@@ -36,6 +38,7 @@ const BookForm = ({ book, onSubmit, onCancel, categories }) => { // Add categori
         title: "", // Reset other fields for new book form
         author: "",
         isbn: "",
+        description: "", // Reset description
         quantity: 1,
         imageUrl: "",
       }));
@@ -66,6 +69,7 @@ const BookForm = ({ book, onSubmit, onCancel, categories }) => { // Add categori
     if (!formData.author.trim()) newErrors.author = "Author is required"
     if (!formData.isbn.trim()) newErrors.isbn = "ISBN is required"
     if (!formData.category || formData.category.trim() === "") newErrors.category = "Category is required" // Ensure category is selected
+    // Description is optional, so no validation needed
     if (!formData.quantity || formData.quantity < 1) newErrors.quantity = "Quantity must be at least 1"
     // URL validation is optional since image might not be provided
     if (formData.imageUrl && !isValidUrl(formData.imageUrl)) {
@@ -142,6 +146,19 @@ const BookForm = ({ book, onSubmit, onCancel, categories }) => { // Add categori
           ))}
         </select>
         {errors.category && <span className="error">{errors.category}</span>}
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="description">Description</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          value={formData.description} 
+          onChange={handleChange}
+          rows="4"
+          placeholder="Enter book description (optional)"
+        />
+        {errors.description && <span className="error">{errors.description}</span>}
       </div>
 
       <div className="form-group">

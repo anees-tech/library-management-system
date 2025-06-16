@@ -10,11 +10,9 @@ const BooksView = ({
   loading,
   searchLoading,
   searchTerm,
-  onSearchTermChange,
-  onSearch,
-  onClearSearch,
   onBorrowBook,
   loadingBookIds,
+  onViewBookDetails, // New prop for modal handler
 }) => {
   return (
     <div className="books-view-component">
@@ -34,19 +32,29 @@ const BooksView = ({
         <>
           {searchTerm && (
             <div className="search-results-info">
-              Found {books.length} book{books.length !== 1 ? "s" : ""}
-              {searchTerm && ` for "${searchTerm}"`}
+              <p>
+                Found <strong>{books.length}</strong> book{books.length !== 1 ? "s" : ""} 
+                {searchTerm && ` matching "${searchTerm}"`}
+              </p>
             </div>
           )}
-          <div className="books-grid-component">
+          <div className="books-grid">
             {books.map((book) => (
-              <BookCard key={book._id} book={book} onBorrow={onBorrowBook} loadingBookIds={loadingBookIds} />
+              <BookCard
+                key={book._id}
+                book={book}
+                onBorrow={onBorrowBook}
+                loadingBookIds={loadingBookIds}
+                onViewDetails={onViewBookDetails} // Pass the modal handler
+              />
             ))}
           </div>
         </>
-      ) : !loading && !searchLoading ? (
-        <NoDataMessage text={searchTerm ? `No books found for "${searchTerm}".` : "No books found."} />
-      ) : null}
+      ) : (
+        <NoDataMessage
+          message={searchTerm ? `No books found matching "${searchTerm}"` : "No books available"}
+        />
+      )}
     </div>
   )
 }

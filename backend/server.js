@@ -4,7 +4,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 import bookRoutes from "./routes/bookRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
-import borrowRoutes from "./routes/borrowRoutes.js"
+import borrowRoutes from "./routes/borrowRoutes.js" // Make sure this is imported
 import authRoutes from "./routes/authRoutes.js"
 
 // Load environment variables
@@ -26,7 +26,7 @@ mongoose
 // Routes
 app.use("/api/books", bookRoutes)
 app.use("/api/users", userRoutes)
-app.use("/api/borrows", borrowRoutes)
+app.use("/api/borrows", borrowRoutes) // Make sure this is mounted
 app.use("/api/auth", authRoutes)
 
 // Error handling middleware
@@ -35,7 +35,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
     message: "Something went wrong!",
-    error: err.message,
+    error: process.env.NODE_ENV === "development" ? err.message : "Internal server error",
   })
 })
 

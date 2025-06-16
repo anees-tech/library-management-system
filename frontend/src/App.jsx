@@ -13,6 +13,7 @@ import AdminReports from "./pages/admin/AdminReports"
 import AuthRoute from "./components/AuthRoute"
 import ErrorBoundary from "./components/common/ErrorBoundary"
 import "./App.css"
+// import BookDetail from "./pages/BookDetail"
 
 function App() {
   const [user, setUser] = useState(null)
@@ -88,6 +89,12 @@ function App() {
             path="/admin/reports"
             element={isAdmin ? <AdminReports user={user} onLogout={handleLogout} /> : <Navigate to="/login" />}
           />
+          {/* <Route
+            path="/book/:id"
+            element={
+              <BookDetail user={user} />
+            }
+          /> */}
 
           <Route path="/" element={<Navigate to={user ? (isAdmin ? "/admin" : "/dashboard") : "/login"} />} />
         </Routes>

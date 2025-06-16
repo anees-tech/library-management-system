@@ -2,53 +2,102 @@
 import React from "react"
 import "./BorrowCard.css"
 
-const BorrowCard = ({ borrow, onReturn, onPayFineClick, returnLoading, isOverdue }) => {
+const BorrowCard = ({ borrow, onReturn, onPayFineClick, returnLoading, isOverdue, hasUnpaidFines }) => {
   const overdue = isOverdue(borrow.dueDate) && borrow.status !== "returned"
   const currentFine = overdue
-    ? Math.max(0, Math.ceil((new Date() - new Date(borrow.dueDate)) / (1000 * 60 * 60 * 24))) * 10 // Assuming fine is 10 per day
+    ? Math.max(0, Math.ceil((new Date() - new Date(borrow.dueDate)) / (1000 * 60 * 60 * 24))) * 10
     : 0
-  const displayFine = borrow.status === "returned" ? borrow.fine : currentFine
+  const displayFine = borrow?.status === "returned" ? borrow?.fine : currentFine
+  
+  // Check if this specific borrow has unpaid fine
+  const hasUnpaidFineThisBorrow = borrow?.status === "returned" && borrow?.fine > 0 && !borrow?.finePaid
+  
+  // Also check for overdue books that will have current fine
+  const hasCurrentFine = overdue && currentFine > 0
+  
+  // Disable return if user has any unpaid fines from other books
+  const canReturn = borrow.status === "borrowed" && !hasUnpaidFines
 
   return (
-    <div className={`borrow-card-component ${overdue ? "overdue" : ""}`}>
+    <div className={`borrow-card-component ${overdue ? "overdue" : ""} ${hasUnpaidFineThisBorrow ? "unpaid-fine" : ""}`}>
       <div className="borrow-details-component">
-        <h3>{borrow.book.title}</h3>
+        <h3>{borrow.book?.title || "Unknown Book"}</h3>
         <p>
-          <strong>Author:</strong> {borrow.book.author}
+          <strong>Author:</strong> {borrow.book?.author || "Unknown"}
         </p>
         <p>
-          <strong>Borrowed On:</strong> {new Date(borrow.borrowDate).toLocaleDateString()}
+          <strong>Borrowed:</strong> {new Date(borrow.borrowedDate).toLocaleDateString()}
         </p>
         <p>
-          <strong>Due Date:</strong> {new Date(borrow.dueDate).toLocaleDateString()}
-          {overdue && <span className="overdue-badge-component"> OVERDUE</span>}
+          <strong>Due:</strong> {new Date(borrow.dueDate).toLocaleDateString()}
         </p>
-        <p>
-          <strong>Status:</strong> <span className={`status-badge-component ${borrow.status}`}>{borrow.status}</span>
-        </p>
+        {borrow.returnedDate && (
+          <p>
+            <strong>Returned:</strong> {new Date(borrow.returnedDate).toLocaleDateString()}
+          </p>
+        )}
         {displayFine > 0 && (
-          <p className="fine-info-component">
+          <p className="fine-amount">
             <strong>Fine:</strong> Rs. {displayFine}
+            {hasUnpaidFineThisBorrow && <span className="unpaid-label"> (Unpaid)</span>}
+            {borrow?.finePaid && <span className="paid-label"> (Paid)</span>}
+            {hasCurrentFine && <span className="current-fine-label"> (Current)</span>}
+          </p>
+        )}
+        
+        {/* Warning message if user has unpaid fines */}
+        {hasUnpaidFines && borrow.status === "borrowed" && (
+          <p className="warning-message">
+            ⚠️ Cannot return books until all fines are paid
           </p>
         )}
       </div>
+
       <div className="borrow-actions-component">
-        {borrow.status !== "returned" && (
-          <button className="return-button-component" onClick={() => onReturn(borrow._id)} disabled={returnLoading}>
-            {returnLoading ? "Processing..." : "Return Book"}
-          </button>
-        )}
-        {displayFine > 0 &&
-          borrow.status !== "returned" && ( // Show pay fine only if not returned and fine exists
-            <button className="pay-button-component" onClick={() => onPayFineClick(borrow)}>
-              Pay Fine
+        <div
+          className={`status-badge-component ${
+            borrow.status === "returned" ? "returned" : overdue ? "overdue" : "borrowed"
+          }`}
+        >
+          {borrow.status === "returned" ? "Returned" : overdue ? "Overdue" : "Borrowed"}
+        </div>
+
+        <div className="action-buttons">
+          {borrow.status === "borrowed" && (
+            <button
+              className="return-button-component"
+              onClick={() => onReturn(borrow._id)}
+              disabled={returnLoading || !canReturn}
+              title={!canReturn ? "Pay all fines before returning books" : "Return this book"}
+            >
+              {returnLoading ? "Returning..." : "Return Book"}
             </button>
           )}
-        {borrow.status === "returned" &&
-          borrow.fine > 0 &&
-          !borrow.finePaid && ( // If returned, fine exists and not paid
-            <p className="fine-info-component">Fine of Rs. {borrow.fine} pending.</p> // Or a pay button if payment is separate after return
+
+          {/* Pay Fine button for returned books with unpaid fines */}
+          {hasUnpaidFineThisBorrow && (
+            <button
+              className="pay-button-component"
+              onClick={() => onPayFineClick(borrow)}
+            >
+              Pay Fine (Rs. {borrow.fine})
+            </button>
           )}
+
+          {/* Pay Fine button for overdue books (current fine) */}
+          {hasCurrentFine && borrow.status === "borrowed" && (
+            <button
+              className="pay-button-component overdue-pay"
+              onClick={() => onPayFineClick({
+                ...borrow,
+                fine: currentFine, // Use current calculated fine
+                isCurrentFine: true // Flag to indicate this is a current fine
+              })}
+            >
+              Pay Current Fine (Rs. {currentFine})
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

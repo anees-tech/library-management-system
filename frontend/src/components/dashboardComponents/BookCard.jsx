@@ -2,14 +2,24 @@
 import React from "react"
 import "./BookCard.css"
 
-const BookCard = ({ book, onBorrow, loadingBookIds }) => {
+const BookCard = ({ book, onBorrow, loadingBookIds, onViewDetails }) => {
   const isLoading = loadingBookIds[book._id] || false
   const isAvailable = book.availableQuantity > 0
 
-  const handleBorrow = () => {
+  const handleBorrow = (e) => {
+    e.stopPropagation() // Prevent modal from opening when clicking borrow
     if (!isLoading && isAvailable) {
       onBorrow(book._id)
     }
+  }
+
+  const handleViewDetails = (e) => {
+    e.stopPropagation()
+    onViewDetails(book) // Pass the book object instead of navigating
+  }
+
+  const handleCardClick = () => {
+    onViewDetails(book) // Open modal when clicking anywhere on the card
   }
 
   const handleImageError = (e) => {
@@ -17,7 +27,7 @@ const BookCard = ({ book, onBorrow, loadingBookIds }) => {
   }
 
   return (
-    <div className="book-card-component">
+    <div className="book-card-component" onClick={handleCardClick}>
       <div className="book-image-container">
         <img
           src={book.imageUrl || book.coverImage || ""}
@@ -40,14 +50,23 @@ const BookCard = ({ book, onBorrow, loadingBookIds }) => {
         <p className={`availability ${isAvailable ? "available" : "unavailable"}`}>
           <strong>Available:</strong> {book.availableQuantity} / {book.quantity}
         </p>
-        <button
-          className={`borrow-button-component ${!isAvailable ? "unavailable" : ""}`}
-          onClick={handleBorrow}
-          disabled={!isAvailable || isLoading}
-          title={!isAvailable ? "Book is not available" : "Borrow this book"}
-        >
-          {isLoading ? "Processing..." : !isAvailable ? "Not Available" : "Borrow"}
-        </button>
+        
+        <div className="book-card-actions">
+          <button
+            className="view-details-button"
+            onClick={handleViewDetails}
+          >
+            View Details
+          </button>
+          <button
+            className={`borrow-button-component ${!isAvailable ? "unavailable" : ""}`}
+            onClick={handleBorrow}
+            disabled={!isAvailable || isLoading}
+            title={!isAvailable ? "Book is not available" : "Borrow this book"}
+          >
+            {isLoading ? "Processing..." : !isAvailable ? "Not Available" : "Borrow"}
+          </button>
+        </div>
       </div>
     </div>
   )

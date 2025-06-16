@@ -147,55 +147,90 @@ export const createBorrow = async (req, res) => {
 // Return a book
 export const returnBook = async (req, res) => {
   try {
-    const borrow = await Borrow.findById(req.params.id)
+    const borrowId = req.params.id;
+
+    // Find the borrow record and populate book details
+    const borrow = await Borrow.findById(borrowId).populate("book");
     if (!borrow) {
       return res.status(404).json({
         success: false,
         message: "Borrow record not found",
-      })
+      });
     }
 
-    // Check if book is already returned
     if (borrow.status === "returned") {
       return res.status(400).json({
         success: false,
-        message: "Book is already returned",
-      })
+        message: "Book has already been returned",
+      });
     }
 
-    const returnDate = new Date()
-    const fine = calculateFine(borrow.dueDate, returnDate)
+    // Check if user has any unpaid fines from other borrows
+    const unpaidFines = await Borrow.find({
+      user: borrow.user,
+      status: "returned",
+      fine: { $gt: 0 },
+      finePaid: { $ne: true } // Fine not paid
+    });
+
+    if (unpaidFines.length > 0) {
+      const totalUnpaidFines = unpaidFines.reduce((sum, b) => sum + (b.fine || 0), 0);
+      return res.status(400).json({
+        success: false,
+        message: `Cannot return book. You have unpaid fines totaling Rs. ${totalUnpaidFines}. Please pay your fines first.`,
+        unpaidFines: unpaidFines.map(b => ({
+          id: b._id,
+          bookTitle: b.book?.title || "Unknown",
+          fine: b.fine,
+          returnedDate: b.returnedDate
+        }))
+      });
+    }
+
+    const returnDate = new Date();
+    const dueDate = new Date(borrow.dueDate);
+
+    // Calculate fine if overdue
+    let fine = 0;
+    if (returnDate > dueDate) {
+      const daysOverdue = Math.ceil((returnDate - dueDate) / (1000 * 60 * 60 * 24));
+      fine = daysOverdue * 10; // Rs. 10 per day
+    }
 
     // Update borrow record
-    const updatedBorrow = await Borrow.findByIdAndUpdate(
-      req.params.id,
-      {
-        returnDate,
-        status: "returned",
-        fine,
-      },
-      { new: true },
-    )
-      .populate("book", "title author isbn")
-      .populate("user", "name registrationNumber")
+    borrow.status = "returned";
+    borrow.returnedDate = returnDate;
+    borrow.fine = fine;
+    borrow.finePaid = fine === 0; // If no fine, mark as paid
+    await borrow.save();
 
-    // Update book available quantity
-    await Book.findByIdAndUpdate(borrow.book, {
-      $inc: { availableQuantity: 1 },
-    })
+    // Update book's available quantity
+    const book = await Book.findById(borrow.book._id);
+    if (book) {
+      book.availableQuantity += 1;
+      await book.save();
+    }
 
     res.status(200).json({
       success: true,
-      data: updatedBorrow,
-    })
+      message: fine > 0 
+        ? `Book returned successfully. Fine of Rs. ${fine} applied for late return.`
+        : "Book returned successfully!",
+      data: {
+        borrow,
+        fine,
+        canReturnOtherBooks: fine === 0 // If this return generated a fine, they can't return other books
+      },
+    });
   } catch (error) {
+    console.error("Return book error:", error);
     res.status(500).json({
       success: false,
       message: "Failed to return book",
       error: error.message,
-    })
+    });
   }
-}
+};
 
 // Get overdue borrows
 export const getOverdueBorrows = async (req, res) => {
@@ -311,3 +346,102 @@ export const getReports = async (req, res) => {
     })
   }
 }
+
+// Make sure this function exists and is exported
+export const payFine = async (req, res) => {
+  try {
+    const borrowId = req.params.id;
+    const { amount } = req.body;
+
+    console.log("PayFine called with borrowId:", borrowId, "amount:", amount); // Debug log
+
+    const borrow = await Borrow.findById(borrowId);
+    if (!borrow) {
+      return res.status(404).json({
+        success: false,
+        message: "Borrow record not found",
+      });
+    }
+
+    // For current fines (overdue books that are still borrowed)
+    if (borrow.status === "borrowed") {
+      // Calculate current fine
+      const today = new Date();
+      const dueDate = new Date(borrow.dueDate);
+      
+      if (today > dueDate) {
+        const daysOverdue = Math.ceil((today - dueDate) / (1000 * 60 * 60 * 24));
+        const currentFine = daysOverdue * 10;
+        
+        if (amount !== currentFine) {
+          return res.status(400).json({
+            success: false,
+            message: `Payment amount Rs. ${amount} does not match current fine amount Rs. ${currentFine}`,
+          });
+        }
+        
+        // For current fines, we'll just return success (mock payment)
+        return res.status(200).json({
+          success: true,
+          message: `Current fine of Rs. ${amount} paid successfully! You can now return the book.`,
+          data: {
+            ...borrow._doc,
+            currentFinePaid: true,
+          },
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "No fine to pay for this borrow",
+        });
+      }
+    }
+    
+    // For returned books with unpaid fines
+    if (borrow.status === "returned") {
+      if (borrow.fine === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "No fine to pay for this borrow",
+        });
+      }
+
+      if (borrow.finePaid) {
+        return res.status(400).json({
+          success: false,
+          message: "Fine has already been paid", 
+        });
+      }
+
+      if (amount !== borrow.fine) {
+        return res.status(400).json({
+          success: false,
+          message: `Payment amount Rs. ${amount} does not match fine amount Rs. ${borrow.fine}`,
+        });
+      }
+
+      // Mark fine as paid
+      borrow.finePaid = true;
+      await borrow.save();
+
+      return res.status(200).json({
+        success: true,
+        message: `Fine of Rs. ${amount} paid successfully!`,
+        data: borrow,
+      });
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: "Invalid borrow status for payment",
+    });
+
+  } catch (error) {
+    console.error("Pay fine error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to process payment",
+      error: error.message,
+    });
+  }
+};

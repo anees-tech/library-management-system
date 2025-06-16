@@ -1,148 +1,205 @@
 .borrow-card-component {
-  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  background-color: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-bottom: 20px;
+  border-left: 4px solid #3b82f6;
   transition: all 0.3s ease;
-  border-left: 4px solid #3498db;
 }
 
 .borrow-card-component:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .borrow-card-component.overdue {
-  border-left: 4px solid #e74c3c;
-  background: linear-gradient(135deg, #fff5f5, #fed7d7);
+  border-left-color: #ef4444;
+  background: linear-gradient(135deg, #fff, #fef2f2);
+}
+
+.borrow-card-component.unpaid-fine {
+  border-left-color: #f59e0b;
+  background: linear-gradient(135deg, #fff, #fffbeb);
 }
 
 .borrow-details-component {
-  flex: 1;
+  margin-bottom: 15px;
 }
 
 .borrow-details-component h3 {
-  color: #2c3e50;
-  margin-top: 0;
-  margin-bottom: 12px;
-  font-size: 1.3rem;
-  font-weight: 600;
+  margin: 0 0 10px 0;
+  color: #1f2937;
+  font-size: 1.25rem;
 }
 
 .borrow-details-component p {
-  margin-bottom: 8px;
-  color: #555;
-  font-size: 0.95rem;
+  margin: 5px 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.fine-amount {
+  color: #dc2626 !important;
+  font-weight: 600;
+}
+
+.unpaid-label {
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.paid-label {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.current-fine-label {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.warning-message {
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 10px;
+  border: 1px solid #fde68a;
 }
 
 .borrow-actions-component {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   gap: 10px;
-  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .return-button-component,
 .pay-button-component {
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  min-width: 120px;
-  text-align: center;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
+  border: none;
+  white-space: nowrap;
 }
 
 .return-button-component {
-  background: linear-gradient(135deg, #27ae60, #219653);
+  background-color: #3b82f6;
+  color: white;
 }
-.return-button-component:hover {
-  background: linear-gradient(135deg, #219653, #1e8449);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+
+.return-button-component:hover:not(:disabled) {
+  background-color: #2563eb;
+  transform: translateY(-1px);
 }
+
 .return-button-component:disabled {
-  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  background-color: #9ca3af;
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
 }
 
 .pay-button-component {
-  background: linear-gradient(135deg, #f39c12, #e67e22);
+  background-color: #f59e0b;
+  color: white;
 }
+
 .pay-button-component:hover {
-  background: linear-gradient(135deg, #e67e22, #d35400);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+  background-color: #d97706;
+  transform: translateY(-1px);
+}
+
+.pay-button-component.overdue-pay {
+  background-color: #dc2626;
+}
+
+.pay-button-component.overdue-pay:hover {
+  background-color: #b91c1c;
 }
 
 .status-badge-component {
-  display: inline-block;
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  text-transform: capitalize;
-  color: white;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .status-badge-component.borrowed {
-  background: linear-gradient(135deg, #3498db, #2980b9);
+  background-color: #dbeafe;
+  color: #1e40af;
 }
+
 .status-badge-component.returned {
-  background: linear-gradient(135deg, #27ae60, #219653);
+  background-color: #d1fae5;
+  color: #065f46;
 }
+
 .status-badge-component.overdue {
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
-.overdue-badge-component {
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-  color: white;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  margin-left: 8px;
-  animation: pulse 2s infinite;
-}
-
-.fine-info-component {
-  color: #e74c3c;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
+/* Responsive design */
 @media (max-width: 768px) {
-  .borrow-card-component {
+  .borrow-actions-component {
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
   }
-  .borrow-details-component {
-    margin-bottom: 15px;
-  }
-  .borrow-actions-component {
+  
+  .action-buttons {
+    flex-direction: column;
     width: 100%;
-    flex-direction: row;
-    justify-content: flex-end;
+  }
+  
+  .return-button-component,
+  .pay-button-component {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  
+  .status-badge-component {
+    align-self: flex-start;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .borrow-card-component {
+    padding: 15px;
+  }
+  
+  .action-buttons {
+    gap: 8px;
   }
 }

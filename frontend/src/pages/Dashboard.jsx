@@ -10,6 +10,7 @@ import BooksView from "../components/dashboardComponents/BooksView"
 import BorrowsView from "../components/dashboardComponents/BorrowsView"
 import ProfileView from "../components/dashboardComponents/ProfileView"
 import PaymentModal from "../components/dashboardComponents/PaymentModal"
+import BookDetailModal from "../components/dashboardComponents/BookDetailModal" // Import the new modal
 
 // Define categories
 const bookCategories = [
@@ -33,7 +34,6 @@ const Dashboard = ({ user, onLogout }) => {
   const [myBorrows, setMyBorrows] = useState([])
   const [loading, setLoading] = useState(true) // For initial load of allBooks
   const [loadingBookIds, setLoadingBookIds] = useState({})
-  // searchLoading can be removed or repurposed for a visual cue during client-side filtering if it's slow
   const [searchLoading, setSearchLoading] = useState(false) 
   const [returnLoading, setReturnLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -41,6 +41,10 @@ const Dashboard = ({ user, onLogout }) => {
   const [message, setMessage] = useState({ type: "", text: "" })
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [selectedBorrowForPayment, setSelectedBorrowForPayment] = useState(null)
+  
+  // New state for book detail modal
+  const [bookDetailModalOpen, setBookDetailModalOpen] = useState(false)
+  const [selectedBookForDetail, setSelectedBookForDetail] = useState(null)
 
   const API_BASE_URL = "http://localhost:5000/api"
 
@@ -62,22 +66,20 @@ const Dashboard = ({ user, onLogout }) => {
         throw new Error(data.message || "Failed to fetch books");
       }
       setAllBooks(data.data || []);
-      // setBooks(data.data || []); // Initially display all books, will be filtered by useEffect
       console.log("All books fetched:", data.data.length);
     } catch (error) {
       console.error("Error fetching all books:", error);
       showMessage("error", error.message || "Failed to load books.");
       setAllBooks([]);
-      // setBooks([]);
     } finally {
       setLoading(false);
     }
-  }, [API_BASE_URL, showMessage]); // Dependencies for fetching all books
+  }, [API_BASE_URL, showMessage]);
 
   // useEffect for client-side filtering and searching
   useEffect(() => {
     console.log("Filtering client-side. Search:", searchTerm, "Category:", selectedCategory);
-    setSearchLoading(true); // Indicate filtering is in progress
+    setSearchLoading(true);
 
     let filtered = [...allBooks];
 
@@ -102,19 +104,16 @@ const Dashboard = ({ user, onLogout }) => {
     setBooks(filtered);
     console.log("Filtered books count:", filtered.length);
     
-    // Simulate a short delay for visual feedback if needed, otherwise remove
     const timer = setTimeout(() => {
         setSearchLoading(false);
-    }, 100); // Adjust or remove delay as needed
+    }, 100);
 
     return () => clearTimeout(timer);
 
   }, [allBooks, searchTerm, selectedCategory]);
 
-
   const fetchMyBorrows = useCallback(async () => {
     if (!user || !user._id) return
-    // setLoading(true) // This loading is for allBooks, borrows can have its own if needed
     try {
       const response = await fetch(`${API_BASE_URL}/users/${user._id}/borrows`)
       const data = await response.json()
@@ -127,8 +126,6 @@ const Dashboard = ({ user, onLogout }) => {
       console.error("Error fetching borrows:", error)
       showMessage("error", "Failed to load your borrowed books.")
       setMyBorrows([])
-    } finally {
-      // setLoading(false)
     }
   }, [user, API_BASE_URL, showMessage]);
 
@@ -136,12 +133,10 @@ const Dashboard = ({ user, onLogout }) => {
   useEffect(() => {
     if (user && user._id) {
       if (activeTab === "books") {
-        if (allBooks.length === 0) { // Only fetch all books if not already fetched
-          fetchAllBooks(); // This sets loading to true
+        if (allBooks.length === 0) {
+          fetchAllBooks();
         } else {
-          // If allBooks is already populated, ensure loading is false
-          // and client-side filtering useEffect will handle displaying correct books
-          setLoading(false); // <--- THIS IS GOOD
+          setLoading(false);
         }
       } else if (activeTab === "borrows") {
         fetchMyBorrows();
@@ -149,40 +144,28 @@ const Dashboard = ({ user, onLogout }) => {
         if (myBorrows.length === 0) {
           fetchMyBorrows();
         }
-        setLoading(false); // Profile tab doesn't load 'allBooks'
+        setLoading(false);
       }
     }
-  }, [user, activeTab, fetchAllBooks, fetchMyBorrows, allBooks.length]); // allBooks.length added
-
-  // This useEffect for debounced search/category API calls is NO LONGER NEEDED
-  // as filtering is client-side.
-  /*
-  useEffect(() => {
-    if (activeTab === "books") {
-      const timeoutId = setTimeout(() => {
-        // fetchBooks(true) // This was calling the backend
-      }, 300) 
-      return () => clearTimeout(timeoutId)
-    }
-  }, [searchTerm, selectedCategory, activeTab, fetchBooks]) // fetchBooks was the backend fetcher
-  */
+  }, [user, activeTab, fetchAllBooks, fetchMyBorrows, allBooks.length]);
 
   const handleSearchBooks = () => {
-    // This function might not be strictly necessary if search happens on input change.
-    // If used with a search button, it doesn't need to do much as searchTerm state change triggers filtering.
     console.log("Search button clicked. Term:", searchTerm);
-    // setSearchLoading(true); // Already handled by filtering useEffect
   };
 
   const handleClearSearch = () => {
     setSearchTerm("");
-    // Client-side filtering useEffect will update the books list
   };
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    // Client-side filtering useEffect will update the books list
   };
+
+  // New function to handle book detail modal
+  const handleViewBookDetails = (book) => {
+    setSelectedBookForDetail(book)
+    setBookDetailModalOpen(true)
+  }
 
   const borrowBook = async (bookId) => {
     setLoadingBookIds((prev) => ({ ...prev, [bookId]: true }))
@@ -203,13 +186,11 @@ const Dashboard = ({ user, onLogout }) => {
       showMessage("success", `Book borrowed successfully! Due: ${new Date(dueDate).toLocaleDateString()}`)
       
       // Refresh ALL books from backend to get updated availableQuantity
-      // This is important if availableQuantity changes on borrow
       await fetchAllBooks(); 
 
       if (activeTab === "borrows" || activeTab === "profile") {
         fetchMyBorrows()
       } else {
-        // If not on borrows tab, update local borrows for badge, etc.
         setMyBorrows((prev) => [...prev, data.data]);
       }
     } catch (error) {
@@ -231,15 +212,26 @@ const Dashboard = ({ user, onLogout }) => {
         method: "PUT",
       })
       const data = await response.json()
-      if (!response.ok) throw new Error(data.message || "Failed to return book")
+      
+      if (!response.ok) {
+        // Check if error is due to unpaid fines
+        if (response.status === 400 && data.unpaidFines) {
+          showMessage("error", data.message)
+          // Optionally, you could show a modal with unpaid fines details
+          console.log("Unpaid fines:", data.unpaidFines)
+        } else {
+          throw new Error(data.message || "Failed to return book")
+        }
+        return // Don't proceed further if there's an error
+      }
+      
       showMessage("success", "Book returned successfully!")
       if (data.data.fine > 0) {
         showMessage("info", `Fine of Rs. ${data.data.fine} applied for late return.`)
       }
       
-      // Refresh ALL books from backend to get updated availableQuantity
       await fetchAllBooks();
-      fetchMyBorrows(); // Always refresh borrows
+      fetchMyBorrows();
 
     } catch (error) {
       console.error("Error returning book:", error)
@@ -256,15 +248,24 @@ const Dashboard = ({ user, onLogout }) => {
 
   const payFine = async (borrowId, amount) => {
     try {
-      // Mock payment - in real app, integrate with payment gateway
-      console.log(`Mock payment: borrowId: ${borrowId}, amount: ${amount}`)
-      showMessage("success", `Fine of Rs. ${amount} paid successfully (mock payment)!`)
+      const response = await fetch(`${API_BASE_URL}/borrows/${borrowId}/pay-fine`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      })
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to process payment")
+      }
+      
+      showMessage("success", `Fine of Rs. ${amount} paid successfully!`)
       setPaymentModalOpen(false)
       setSelectedBorrowForPayment(null)
       fetchMyBorrows()
     } catch (error) {
       console.error("Error processing payment:", error)
-      showMessage("error", "Payment failed. Please try again.")
+      showMessage("error", error.message || "Payment failed. Please try again.")
     }
   }
 
@@ -337,7 +338,6 @@ const Dashboard = ({ user, onLogout }) => {
                 placeholder="Search books..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                // onKeyPress={(e) => e.key === "Enter" && handleSearchBooks()} // Optional if searching on type
                 className="search-input-dashboard"
                 disabled={loading} // Disable only during the initial fetch of allBooks
               />
@@ -392,6 +392,7 @@ const Dashboard = ({ user, onLogout }) => {
               // so BooksView might not need all of them if Dashboard handles input state directly
               onBorrowBook={borrowBook}
               loadingBookIds={loadingBookIds}
+              onViewBookDetails={handleViewBookDetails} // Add this prop
             />
           </div>
         )}
@@ -407,7 +408,7 @@ const Dashboard = ({ user, onLogout }) => {
               onReturnBook={returnBook}
               onOpenPaymentModal={handleOpenPaymentModal}
               returnLoading={returnLoading}
-              isOverdue={isOverdue}
+              isOverdue={isOverdue} // Add this line
             />
           </div>
         )}
@@ -471,6 +472,18 @@ const Dashboard = ({ user, onLogout }) => {
         }}
         selectedBorrow={selectedBorrowForPayment}
         onPayFine={payFine}
+      />
+
+      {/* Add the new BookDetailModal */}
+      <BookDetailModal
+        isOpen={bookDetailModalOpen}
+        onClose={() => {
+          setBookDetailModalOpen(false)
+          setSelectedBookForDetail(null)
+        }}
+        book={selectedBookForDetail}
+        user={user}
+        onBorrowBook={borrowBook}
       />
     </div>
   )

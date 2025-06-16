@@ -24,7 +24,11 @@ const bookSchema = new mongoose.Schema(
       required: [true, "Please add a category"],
       trim: true,
     },
-    description: { type: String, trim: true },
+    description: { 
+      type: String, 
+      trim: true,
+      default: "No description available." // Add default description
+    },
     quantity: {
       type: Number,
       required: [true, "Please add a quantity"],
